@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_name"/>
+  <arg name="init_pose"/> 
+
+  <arg name="x" default="2"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0"/>
+  <arg name="R" default="0"/>
+  <arg name="P" default="0"/>
+  <arg name="Y" default="0"/>
+
+  <arg name="est" default="ekf2"/>
+  <arg name="sdf" default="$(find aerial_guided_navigation)/models/$(arg robot_name)/$(arg robot_name).sdf"/>
+  <env name="PX4_SIM_MODEL" value="gazebo-classic_$(arg robot_name)" />
+  <arg name="interactive" default="true"/>
+
+  <arg unless="$(arg interactive)" name="px4_command_arg1" value="-d"/>
+  <arg     if="$(arg interactive)" name="px4_command_arg1" value=""/>
+  <node name="sitl" pkg="px4" type="px4" output="screen"
+      args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS $(arg px4_command_arg1)" required="true"/>
+
+  <node name="spawn_sdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg robot_name) $(arg init_pose)"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+ </launch>
